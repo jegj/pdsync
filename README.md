@@ -4,9 +4,13 @@ personal data sync script
 ## usage
 
 ```sh 
-dsync /home/user/folder1 /home/user/folder2
+dsync -d /backup /home/user/folder1 /home/user/folder2
 ```
 
-## env variables
+## Installation
+
+```sh
+cp dsync.sh $HOME/.local/bin
+```
 
 
