@@ -7,23 +7,25 @@ set -o pipefail
 #                                                                                                                     #
 # Author: jegj@gmail.com                                                                                              #
 #                                                                                                                     #
-#                                                                                                                     #
 # Usage:                                                                                                              #
 # ./dsync.sh /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                            #
+# ./dsync.sh -d /tmp /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                    #
 #######################################################################################################################
 
 usage() {
 	cat <<EOF # remove the space between << and EOF, this is due to web plugin issue
 Usage: $(
 		basename "${BASH_SOURCE[0]}"
-	) [-h] [-v]  arg1 [arg2...]
+	) [-h|--help] [-v|--verboese] [-b|--backup_name <backup_name>] [-d|--destination <destination>] arg1 [arg2...]
 
 Script to backup my data and upload it to remote locations
 
 Available options:
 
--h, --help      Print this help and exit
--v, --verbose   Print script debug info
+-h, --help         Print this help and exit
+-v, --verbose      Print script debug info
+-b, --backup_name  Backup's name. By default create a generic name with the timestamp
+-d, --destination  Final destination for the backup. By default is the current directory
 EOF
 	exit
 }
@@ -43,6 +45,7 @@ parse_params() {
 	# default values of variables set from params
 	backup_name="backup_$(date +%d_%m_%Y).tgz"
 	folder_destination="./"
+	arrVar=()
 
 	while :; do
 		case "${1-}" in
@@ -57,22 +60,18 @@ parse_params() {
 			shift
 			;;
 		-?*) die "Unknown option: $1" ;;
-		*) break ;;
+		*)
+			[[ -z $1 ]] && break
+			arrVar+=("${1}")
+			;;
 		esac
 		shift
 	done
-
-	args=("$@")
-
-	# check required params and arguments
-	#[[ -z "${param-}" ]] && die "Missing required parameter: param"
-	[[ ${#args[@]} -eq 0 ]] && die "Missing script arguments"
-
+	[[ ${#arrVar[@]} -eq 0 ]] && die "The script need the folders for the archive"
 	return 0
 }
 
 parse_params "$@"
-echo "----------$folder_destination"
 start=$(date +%s.%N)
 
 # TODO: Replace hardcoded name
@@ -81,10 +80,7 @@ start=$(date +%s.%N)
 #fi
 
 {
-	tar -czvf "$backup_name" "$@"
-	#for folders in "$@"; do
-	#	echo "$folders"
-	#done
+	tar -czvf "$folder_destination/$backup_name" "${arrVar[@]}"
 }
 
 duration=$(echo "$(date +%s.%N) - $start" | bc)
