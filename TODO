@@ -1,0 +1,4 @@
+TODO: Add notification system with notify-send
+TODO: Support offsite backups with an external vendor
+TODO: Add backup rotation or deletion to avoid fill up the archive
+TODO: Add log with detail 
