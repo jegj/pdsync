@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 set -o pipefail
 #######################################################################################################################
 #                                            dsync                                                                    #
@@ -12,6 +11,8 @@ set -o pipefail
 # ./dsync.sh -d /tmp /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                    #
 #######################################################################################################################
 
+day_in_ms=86400000
+tar_failed=0
 usage() {
 	cat <<EOF # remove the space between << and EOF, this is due to web plugin issue
 Usage: $(
@@ -80,9 +81,15 @@ start=$(date +%s.%N)
 #fi
 
 {
-	tar -czvf "$folder_destination/$backup_name" "${arrVar[@]}"
-}
+	if ! tar -czvf "$folder_destination/$backup_name" "${arrVar[@]}"; then
+		tar_failed=1
+	fi
+} >"/tmp/$backup_name.out" 2>"/tmp/$backup_name.err"
 
 duration=$(echo "$(date +%s.%N) - $start" | bc)
 execution_time=$(printf "%.2f seconds" "$duration")
-echo "Script Execution Time: $execution_time"
+if [[ $tar_failed -eq 0 ]]; then
+	notify-send -u normal -a pdsync -c backups -t $day_in_ms "pdsync backup completed. Execution time: $execution_time"
+else
+	notify-send -u critical -a pdsync -c backups -t $day_in_ms "pdsync backup failed"
+fi
