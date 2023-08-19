@@ -4,7 +4,8 @@ personal data sync script
 ## usage
 
 ```sh 
-dsync -d /backup /home/user/folder1 /home/user/folder2
+dsync.sh -d /backup /home/user/folder1 /home/user/folder2
+dsync.sh -d "/media/backups" /home/user1/Videos /home/user1/Documents /home/user1/Pictures /home/user1/projects
 ```
 
 ## Installation
@@ -12,5 +13,4 @@ dsync -d /backup /home/user/folder1 /home/user/folder2
 ```sh
 cp dsync.sh $HOME/.local/bin
 ```
-
 
