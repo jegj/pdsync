@@ -1,14 +1,14 @@
 #!/bin/bash
 set -o pipefail
 #######################################################################################################################
-#                                            dsync                                                                    #
+#                                            pdsync                                                                    #
 # Script to backup my data and upload it to remote locations                                                          #
 #                                                                                                                     #
 # Author: jegj@gmail.com                                                                                              #
 #                                                                                                                     #
 # Usage:                                                                                                              #
-# ./dsync.sh /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                            #
-# ./dsync.sh -d /tmp /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                    #
+# ./pdsync.sh /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                            #
+# ./pdsync.sh -d /tmp /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                    #
 #######################################################################################################################
 
 day_in_ms=86400000
@@ -84,12 +84,12 @@ start=$(date +%s.%N)
 	if ! tar -czvf "$folder_destination/$backup_name" "${arrVar[@]}"; then
 		tar_failed=1
 	fi
+	duration=$(echo "$(date +%s.%N) - $start" | bc)
+	execution_time=$(printf "%.2f seconds" "$duration")
+	if [[ $tar_failed -eq 0 ]]; then
+		notify-send -u normal -a pdsync -c backups -t $day_in_ms "pdsync backup completed. Execution time: $execution_time"
+	else
+		notify-send -u critical -a pdsync -c backups -t $day_in_ms "pdsync backup failed"
+	fi
+	echo "Backup completed. Execution time: $execution_time"
 } >"/tmp/$backup_name.out" 2>"/tmp/$backup_name.err"
-
-duration=$(echo "$(date +%s.%N) - $start" | bc)
-execution_time=$(printf "%.2f seconds" "$duration")
-if [[ $tar_failed -eq 0 ]]; then
-	notify-send -u normal -a pdsync -c backups -t $day_in_ms "pdsync backup completed. Execution time: $execution_time"
-else
-	notify-send -u critical -a pdsync -c backups -t $day_in_ms "pdsync backup failed"
-fi
