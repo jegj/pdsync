@@ -101,6 +101,6 @@ start=$(date +%s.%N)
 
 	if [[ $prune_days -gt 0 ]]; then
 		echo "prune active for $prune_days at $folder_destination"
-		find $folder_destination -mtime +$prune_days -type f -delete
+		find "$folder_destination" -mtime "+$prune_days" -type f -delete
 	fi
 } >"/tmp/$backup_name.out" 2>"/tmp/$backup_name.err"
