@@ -1,14 +1,14 @@
 #!/bin/bash
 set -o pipefail
 #######################################################################################################################
-#                                            pdsync                                                                    #
+#                                            pdsync                                                                   #
 # Script to backup my data and upload it to remote locations                                                          #
 #                                                                                                                     #
 # Author: jegj@gmail.com                                                                                              #
 #                                                                                                                     #
 # Usage:                                                                                                              #
-# ./pdsync.sh /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                            #
-# ./pdsync.sh -d /tmp /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                    #
+# ./pdsync.sh /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                           #
+# ./pdsync.sh -d /tmp /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                   #
 #######################################################################################################################
 
 day_in_ms=86400000
@@ -17,7 +17,7 @@ usage() {
 	cat <<EOF # remove the space between << and EOF, this is due to web plugin issue
 Usage: $(
 		basename "${BASH_SOURCE[0]}"
-	) [-h|--help] [-v|--verboese] [-b|--backup_name <backup_name>] [-d|--destination <destination>] arg1 [arg2...]
+	) [-h|--help] [-v|--verboese] [-b|--backup_name <backup_name>] [-d|--destination <destination>] [-p|--prune <prune_days>] arg1 [arg2...]
 
 Script to backup my data and upload it to remote locations
 
@@ -27,6 +27,7 @@ Available options:
 -v, --verbose      Print script debug info
 -b, --backup_name  Backup's name. By default create a generic name with the timestamp
 -d, --destination  Final destination for the backup. By default is the current directory
+-p, --prune        Prune backups based on days created     
 EOF
 	exit
 }
@@ -46,12 +47,17 @@ parse_params() {
 	# default values of variables set from params
 	backup_name="backup_$(date +%d_%m_%Y).tgz"
 	folder_destination="./"
+	prune_days=0
 	arrVar=()
 
 	while :; do
 		case "${1-}" in
 		-h | --help) usage ;;
 		-v | --verbose) set -x ;;
+		-p | --prune)
+			prune_days=${2-}
+			shift
+			;;
 		-b | --backup_name)
 			backup_name="${2-}"
 			shift
@@ -92,4 +98,9 @@ start=$(date +%s.%N)
 		notify-send -u critical -a pdsync -c backups -t $day_in_ms "pdsync backup failed"
 	fi
 	echo "Backup completed. Execution time: $execution_time"
+
+	if [[ $prune_days -gt 0 ]]; then
+		echo "prune active for $prune_days at $folder_destination"
+		find $folder_destination -mtime +$prune_days -type f -delete
+	fi
 } >"/tmp/$backup_name.out" 2>"/tmp/$backup_name.err"
