@@ -45,7 +45,7 @@ die() {
 
 parse_params() {
 	# default values of variables set from params
-	backup_name="backup_$(date +%d_%m_%Y).tgz"
+	backup_name="backup_$(date +%d_%m_%Y).tar.xz"
 	folder_destination="./"
 	prune_days=0
 	arrVar=()
@@ -87,7 +87,7 @@ start=$(date +%s.%N)
 #fi
 
 {
-	if ! tar -czvf "$folder_destination/$backup_name" "${arrVar[@]}"; then
+	if ! XZ_OPT=-9 tar --exclude-vcs --exclude="node_modules" -Jcvf "$folder_destination/$backup_name" "${arrVar[@]}"; then
 		tar_failed=1
 	fi
 	duration=$(echo "$(date +%s.%N) - $start" | bc)
