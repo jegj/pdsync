@@ -10,7 +10,7 @@ pdsync.sh -d "/media/backups" /home/user1/Videos /home/user1/Documents /home/use
 On crons define the XDG_RUNTIME_DIR so the cron can send the notification
 
 ```sh
-* * * * * XDG_RUNTIME_DIR=/run/user/$(id -u) pdsync.sh -d "/remote/backup" /home
+* * * * * XDG_RUNTIME_DIR=/run/user/$(id -u) pdsync.sh -d "/remote/backup" -p 5 /home
 ```
 
 ## Installation
