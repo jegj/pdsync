@@ -43,11 +43,18 @@ die() {
 	exit "$code"
 }
 
+check_dependecies() {
+	if ! aws --version &>/dev/null; then
+		die "aws cli is required" 1
+	fi
+}
+
 parse_params() {
 	# default values of variables set from params
 	backup_name="backup_$(date +%d_%m_%Y).tar.xz"
 	folder_destination="./"
 	prune_days=0
+	s3_bucket=''
 	arrVar=()
 
 	while :; do
@@ -66,6 +73,10 @@ parse_params() {
 			folder_destination="${2-}"
 			shift
 			;;
+		-s | --s3_bucket)
+			s3_bucket="${2-}"
+			shift
+			;;
 		-?*) die "Unknown option: $1" ;;
 		*)
 			[[ -z $1 ]] && break
@@ -81,12 +92,8 @@ parse_params() {
 parse_params "$@"
 start=$(date +%s.%N)
 
-# TODO: Replace hardcoded name
-#if [[ "$(whoami)" != "root" ]]; then
-#	die "Script must be run as the owner "255
-#fi
-
 {
+	check_dependecies
 	if ! XZ_OPT=-9 tar --exclude-vcs --exclude="node_modules" -Jcvf "$folder_destination/$backup_name" "${arrVar[@]}"; then
 		tar_failed=1
 	fi
@@ -102,5 +109,11 @@ start=$(date +%s.%N)
 	if [[ $prune_days -gt 0 ]]; then
 		echo "prune active for $prune_days at $folder_destination"
 		find "$folder_destination" -mtime "+$prune_days" -type f -delete
+	fi
+	if
+		[[ -z "$s3_bucket" ]]
+		echo "No s3 bucket. Skipping remote backup..."
+	then
+		echo "Preparin to upload to S3 bucket $s3_bucket"
 	fi
 } >"/tmp/$backup_name.out" 2>"/tmp/$backup_name.err"
