@@ -28,6 +28,7 @@ Available options:
 -b, --backup_name  Backup's name. By default create a generic name with the timestamp
 -d, --destination  Final destination for the backup. By default is the current directory
 -p, --prune        Prune backups based on days created     
+-s, --s3_bucket    S3 bucket for offsite backup     
 EOF
 	exit
 }
@@ -104,7 +105,7 @@ start=$(date +%s.%N)
 	else
 		notify-send -u critical -a pdsync -c backups -t $day_in_ms "pdsync backup failed"
 	fi
-	echo "Backup completed. Execution time: $execution_time"
+	echo "Backup generation completed. Execution time: $execution_time"
 
 	if [[ $prune_days -gt 0 ]]; then
 		echo "prune active for $prune_days at $folder_destination"
@@ -112,8 +113,15 @@ start=$(date +%s.%N)
 	fi
 	if
 		[[ -z "$s3_bucket" ]]
-		echo "No s3 bucket. Skipping remote backup..."
 	then
-		echo "Preparin to upload to S3 bucket $s3_bucket"
+		echo "No s3 bucket. Skipping remote backup..."
+	else
+		echo "Preparing to upload to S3 bucket $s3_bucket"
+		# TODO: Delete old backups to continue using aws free layer
+		if [[ $(date +%u) -eq 7 ]]; then
+			aws s3 cp "$folder_destination/$backup_name" "$s3_bucket/jegj_backup.tar.xz"
+		else
+			echo "Skipping remote backup. Only on Sundays"
+		fi
 	fi
 } >"/tmp/$backup_name.out" 2>"/tmp/$backup_name.err"
