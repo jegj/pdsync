@@ -14,7 +14,7 @@ set -o pipefail
 day_in_ms=86400000
 tar_failed=0
 usage() {
-	cat <<EOF # remove the space between << and EOF, this is due to web plugin issue
+	cat <<EOF
 Usage: $(
 		basename "${BASH_SOURCE[0]}"
 	) [-h|--help] [-v|--verboese] [-b|--backup_name <backup_name>] [-d|--destination <destination>] [-p|--prune <prune_days>] arg1 [arg2...]
@@ -24,7 +24,7 @@ Script to backup my data and upload it to remote locations
 Available options:
 
 -h, --help         Print this help and exit
--v, --verbose      Print script debug info
+-v, --vesion       Print script version
 -b, --backup_name  Backup's name. By default create a generic name with the timestamp
 -d, --destination  Final destination for the backup. By default is the current directory
 -p, --prune        Prune backups based on days created     
@@ -61,7 +61,10 @@ parse_params() {
 	while :; do
 		case "${1-}" in
 		-h | --help) usage ;;
-		-v | --verbose) set -x ;;
+		-v | --version)
+			msg 1.0.0
+			exit
+			;;
 		-p | --prune)
 			prune_days=${2-}
 			shift
@@ -117,9 +120,9 @@ start=$(date +%s.%N)
 		echo "No s3 bucket. Skipping remote backup..."
 	else
 		echo "Preparing to upload to S3 bucket $s3_bucket"
-		# TODO: Delete old backups to continue using aws free layer
 		if [[ $(date +%u) -eq 7 ]]; then
 			aws s3 cp "$folder_destination/$backup_name" "$s3_bucket/jegj_backup.tar.xz"
+			# TODO: Delete old backups to continue using aws free layer
 		else
 			echo "Skipping remote backup. Only on Sundays"
 		fi
