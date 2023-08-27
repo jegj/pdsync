@@ -1,5 +1,5 @@
 DONE: Add notification system with notify-send
-TODO: Support offsite backups with an external vendor
+DONE: Support offsite backups with an external vendor
 DONE: Add backup rotation or deletion to avoid fill up the archive
 DONE: Add log with detail
 DONE: github action to run shellcheck

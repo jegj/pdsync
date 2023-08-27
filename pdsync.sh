@@ -121,8 +121,8 @@ start=$(date +%s.%N)
 	else
 		echo "Preparing to upload to S3 bucket $s3_bucket"
 		if [[ $(date +%u) -eq 7 ]]; then
+			aws s3 rm "$s3_bucket" --recursive
 			aws s3 cp "$folder_destination/$backup_name" "$s3_bucket/jegj_backup.tar.xz"
-			# TODO: Delete old backups to continue using aws free layer
 		else
 			echo "Skipping remote backup. Only on Sundays"
 		fi
