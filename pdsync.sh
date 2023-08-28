@@ -11,6 +11,7 @@ set -o pipefail
 # ./pdsync.sh -d /tmp /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                   #
 #######################################################################################################################
 
+version="1.0.0"
 day_in_ms=86400000
 tar_failed=0
 usage() {
@@ -62,7 +63,7 @@ parse_params() {
 		case "${1-}" in
 		-h | --help) usage ;;
 		-v | --version)
-			msg 1.0.0
+			msg $version
 			exit
 			;;
 		-p | --prune)

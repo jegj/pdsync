@@ -6,4 +6,4 @@ DONE: github action to run shellcheck
 TODO: Add install.sh script just like https://github.com/labbots/google-drive-upload/tree/master
 TODO: Add s3 tags for better file handling and create S3 policy retention
 TODO: Take metrics for s3 upload
-TODO: Add version
+DONE: Add version
