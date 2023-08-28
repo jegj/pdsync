@@ -120,11 +120,11 @@ start=$(date +%s.%N)
 		echo "No s3 bucket. Skipping remote backup..."
 	else
 		echo "Preparing to upload to S3 bucket $s3_bucket"
-		if [[ $(date +%u) -eq 7 ]]; then
+		if [[ $(date +%u) -eq 1 ]]; then
 			aws s3 rm "$s3_bucket" --recursive
 			aws s3 cp "$folder_destination/$backup_name" "$s3_bucket/jegj_backup.tar.xz"
 		else
-			echo "Skipping remote backup. Only on Sundays"
+			echo "Skipping remote backup. Only for Sundays"
 		fi
 	fi
 } >"/tmp/$backup_name.out" 2>"/tmp/$backup_name.err"
