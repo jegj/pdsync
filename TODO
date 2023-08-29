@@ -7,3 +7,4 @@ TODO: Add install.sh script just like https://github.com/labbots/google-drive-up
 TODO: Add s3 tags for better file handling and create S3 policy retention
 DONE: Take metrics for s3 upload
 DONE: Add version
+TODO: Add option to force s3 upload
