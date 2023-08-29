@@ -94,36 +94,45 @@ parse_params() {
 	return 0
 }
 
-parse_params "$@"
-start=$(date +%s.%N)
+calc_duration() {
+	start=$1
+	duration=$(echo "$(date +%s.%N) - $start" | bc)
+	execution_time_seconds=$(printf "%.2f seconds" "$duration")
+	echo "$execution_time_seconds"
+}
 
+parse_params "$@"
 {
+	start_generation=$(date +%s.%N)
 	check_dependecies
 	if ! XZ_OPT=-9 tar --exclude-vcs --exclude="node_modules" -Jcvf "$folder_destination/$backup_name" "${arrVar[@]}"; then
 		tar_failed=1
 	fi
-	duration=$(echo "$(date +%s.%N) - $start" | bc)
-	execution_time=$(printf "%.2f seconds" "$duration")
+	execution_time_seconds=$(calc_duration "$start_generation")
 	if [[ $tar_failed -eq 0 ]]; then
-		notify-send -u normal -a pdsync -c backups -t $day_in_ms "pdsync backup completed. Execution time: $execution_time"
+		notify-send -u normal -a pdsync -c backups -t $day_in_ms "pdsync backup completed. Execution time: $execution_time_seconds"
 	else
 		notify-send -u critical -a pdsync -c backups -t $day_in_ms "pdsync backup failed"
 	fi
-	echo "Backup generation completed. Execution time: $execution_time"
+	echo "Backup generation completed. Execution time: $execution_time_seconds"
 
 	if [[ $prune_days -gt 0 ]]; then
 		echo "prune active for $prune_days at $folder_destination"
 		find "$folder_destination" -mtime "+$prune_days" -type f -delete
 	fi
+
 	if
 		[[ -z "$s3_bucket" ]]
 	then
 		echo "No s3 bucket. Skipping remote backup..."
 	else
+		start_upload=$(date +%s.%N)
 		echo "Preparing to upload to S3 bucket $s3_bucket"
 		if [[ $(date +%u) -eq 1 ]]; then
 			aws s3 rm "$s3_bucket" --recursive
 			aws s3 cp "$folder_destination/$backup_name" "$s3_bucket/jegj_backup.tar.xz"
+			upload_time_seconds=$(calc_duration "$start_upload")
+			echo "Backup upload completed. Execution time: $upload_time_seconds"
 		else
 			echo "Skipping remote backup. Only for Sundays"
 		fi
