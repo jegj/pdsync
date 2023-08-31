@@ -11,7 +11,7 @@ set -o pipefail
 # ./pdsync.sh -d /tmp /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                   #
 #######################################################################################################################
 
-version="1.1.0"
+version="1.2.0"
 day_in_ms=86400000
 tar_failed=0
 usage() {
@@ -28,8 +28,10 @@ Available options:
 -v, --vesion       Print script version
 -b, --backup_name  Backup's name. By default create a generic name with the timestamp
 -d, --destination  Final destination for the backup. By default is the current directory
--p, --prune        Prune backups based on days created     
--s, --s3_bucket    S3 bucket for offsite backup     
+-p, --prune        Prune backups based on days created
+-s, --s3_bucket    S3 bucket for offsite backup
+-u, --upload_day   Only upload to S3 on specific days base on number( 1-monday, 2-tuesday ...)
+-f, --force_upload Force to upload to S3
 EOF
 	exit
 }
@@ -57,6 +59,8 @@ parse_params() {
 	folder_destination="./"
 	prune_days=0
 	s3_bucket=''
+	upload_day=0
+	force_upload=0
 	arrVar=()
 
 	while :; do
@@ -81,6 +85,13 @@ parse_params() {
 		-s | --s3_bucket)
 			s3_bucket="${2-}"
 			shift
+			;;
+		-u | --upload_day)
+			upload_day="${2-}"
+			shift
+			;;
+		-f | --force_upload)
+			force_upload=1
 			;;
 		-?*) die "Unknown option: $1" ;;
 		*)
@@ -128,13 +139,15 @@ parse_params "$@"
 	else
 		start_upload=$(date +%s.%N)
 		echo "Preparing to upload to S3 bucket $s3_bucket"
-		if [[ $(date +%u) -eq 1 ]]; then
+		if [[ $(date +%u) -eq $upload_day || $force_upload -eq 1 ]]; then
 			aws s3 rm "$s3_bucket" --recursive
-			aws s3 cp "$folder_destination/$backup_name" "$s3_bucket/jegj_backup.tar.xz"
+			aws s3 cp "$folder_destination/$backup_name" "$s3_bucket/$backup_name"
+			s3_bucket_without_protcol=${s3_bucket//"s3://"/}
+			aws s3api put-object-tagging --bucket "$s3_bucket_without_protcol" --key "$backup_name" --tagging '{"TagSet": [{ "Key": "purpose", "Value": "backup" }]}'
 			upload_time_seconds=$(calc_duration "$start_upload")
 			echo "Backup upload completed. Execution time: $upload_time_seconds"
 		else
-			echo "Skipping remote backup. Only for Sundays"
+			echo "Skipping remote backup. Does not match the day"
 		fi
 	fi
 } >"/tmp/$backup_name.out" 2>"/tmp/$backup_name.err"
