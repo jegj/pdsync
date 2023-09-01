@@ -9,4 +9,5 @@ DONE: Take metrics for s3 upload
 DONE: Add version
 DONE: Add option to force s3 upload
 TODO: Add passwords ofr the backups
-TODO: Add option to force s3 content first
+DONE: Add option to force s3 content first
+DONE: Secure S3 bucket ... best practices
