@@ -16,6 +16,20 @@ On crons define the XDG_RUNTIME_DIR so the cron can send the notification
 ## remote backups
 Only supports s3 and for now only upload the backup to s3 on Sundays to use AWS S3 free layer 
 
+## gpg encryption
+
+```sh
+#encryption
+gpg --encrypt --sign --armor -r <email> --passphrase-file <passphrase_file> -o <destination> file_name
+#descryption
+gpg file_name.asc
+```
+
+Some documentation about `gpg`
+
+- https://www.digitalocean.com/community/tutorials/how-to-use-gpg-to-encrypt-and-sign-messages
+- https://risanb.com/code/backup-restore-gpg-key/
+
 ## Installation
 
 ```sh
