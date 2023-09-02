@@ -8,6 +8,8 @@ DONE: Add s3 tags for better file handling and create S3 policy retention
 DONE: Take metrics for s3 upload
 DONE: Add version
 DONE: Add option to force s3 upload
-TODO: Add passwords ofr the backups
+DONE: Add encryption to the backups
 DONE: Add option to force s3 content first
 DONE: Secure S3 bucket ... best practices
+TODO: Add flag for s3 free tier
+TODO: Add options for customize the gpg encryption
