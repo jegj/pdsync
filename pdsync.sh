@@ -114,12 +114,17 @@ calc_duration() {
 
 parse_params "$@"
 {
+	encrypted_backup="$folder_destination/$backup_name.asc"
 	start_generation=$(date +%s.%N)
 	check_dependecies
 	if ! XZ_OPT=-9 tar --exclude-vcs --exclude="node_modules" -Jcvf "$folder_destination/$backup_name" "${arrVar[@]}"; then
 		tar_failed=1
 	fi
+	# TODO: Define options for gpg options
+	gpg --encrypt --sign --armor --batch -r jegj57@gmail.com --passphrase-file /home/jegj/.gnupg/passphrase -o "$encrypted_backup" "$folder_destination/$backup_name"
+	rm "$folder_destination/$backup_name"
 	execution_time_seconds=$(calc_duration "$start_generation")
+
 	if [[ $tar_failed -eq 0 ]]; then
 		notify-send -u normal -a pdsync -c backups -t $day_in_ms "pdsync backup completed. Execution time: $execution_time_seconds"
 	else
@@ -141,9 +146,7 @@ parse_params "$@"
 		echo "Preparing to upload to S3 bucket $s3_bucket"
 		if [[ $(date +%u) -eq $upload_day || $force_upload -eq 1 ]]; then
 			aws s3 rm "$s3_bucket" --recursive
-			aws s3 cp "$folder_destination/$backup_name" "$s3_bucket/$backup_name"
-			s3_bucket_without_protcol=${s3_bucket//"s3://"/}
-			aws s3api put-object-tagging --bucket "$s3_bucket_without_protcol" --key "$backup_name" --tagging '{"TagSet": [{ "Key": "purpose", "Value": "backup" }]}'
+			aws s3 cp "$encrypted_backup" "$s3_bucket/$backup_name.asc"
 			upload_time_seconds=$(calc_duration "$start_upload")
 			echo "Backup upload completed. Execution time: $upload_time_seconds"
 		else
