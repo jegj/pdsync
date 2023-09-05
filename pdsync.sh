@@ -118,6 +118,7 @@ parse_params "$@"
 	#encrypted_backup="$unencrypted_backup.asc"
 	start_generation=$(date +%s.%N)
 	check_dependecies
+	#FIXME: When backup size gets to 4GB this will throw an error
 	if ! XZ_OPT=-9 tar --exclude-vcs --exclude="node_modules" -Jcvf "$unencrypted_backup" "${arrVar[@]}"; then
 		tar_failed=1
 	fi
