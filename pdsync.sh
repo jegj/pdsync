@@ -115,7 +115,7 @@ calc_duration() {
 parse_params "$@"
 {
 	unencrypted_backup="$folder_destination/$backup_name"
-	encrypted_backup="$unencrypted_backup.asc"
+	#encrypted_backup="$unencrypted_backup.asc"
 	start_generation=$(date +%s.%N)
 	check_dependecies
 	if ! XZ_OPT=-9 tar --exclude-vcs --exclude="node_modules" -Jcvf "$unencrypted_backup" "${arrVar[@]}"; then
@@ -123,7 +123,7 @@ parse_params "$@"
 	fi
 	# TODO: Define options for gpg options
 	#gpg --encrypt --sign --armor --batch -r jegj57@gmail.com --passphrase-file /home/jegj/.gnupg/passphrase -o "$encrypted_backup" "$folder_destination/$backup_name"
-	rm "$folder_destination/$backup_name"
+	#rm "$folder_destination/$backup_name"
 	execution_time_seconds=$(calc_duration "$start_generation")
 
 	if [[ $tar_failed -eq 0 ]]; then
