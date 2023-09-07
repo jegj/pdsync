@@ -123,7 +123,7 @@ parse_params "$@"
 		tar_failed=1
 	fi
 	# TODO: Define options for gpg options
-	#gpg --encrypt --sign --armor --batch -r jegj57@gmail.com --passphrase-file /home/jegj/.gnupg/passphrase -o "$encrypted_backup" "$folder_destination/$backup_name"
+	#gpg --pinentry-mode=loopback --encrypt --sign --armor --batch -r jegj57@gmail.com --passphrase-file /home/jegj/.gnupg/passphrase -o "$encrypted_backup" "$folder_destination/$backup_name"
 	#rm "$folder_destination/$backup_name"
 	execution_time_seconds=$(calc_duration "$start_generation")
 
