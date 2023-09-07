@@ -24,14 +24,15 @@ Script to backup my data and upload it to remote locations
 
 Available options:
 
--h, --help         Print this help and exit
--v, --vesion       Print script version
--b, --backup_name  Backup's name. By default create a generic name with the timestamp
--d, --destination  Final destination for the backup. By default is the current directory
--p, --prune        Prune backups based on days created
--s, --s3_bucket    S3 bucket for offsite backup
--u, --upload_day   Only upload to S3 on specific days base on number( 1-monday, 2-tuesday ...)
--f, --force_upload Force to upload to S3
+-h, --help                Print this help and exit
+-v, --vesion              Print script version
+-b, --backup_name         Backup's name. By default create a generic name with the timestamp
+-t, ---transition_folder  Transition folder to file/folder operations. Useful when the destination has a file system with file size limitation e.g.vfat
+-d, --destination         Final destination for the backup. By default is the current directory
+-p, --prune               Prune backups based on days created
+-s, --s3_bucket           S3 bucket for offsite backup
+-u, --upload_day          Only upload to S3 on specific days base on number( 1-monday, 2-tuesday ...)
+-f, --force_upload        Force to upload to S3
 EOF
 	exit
 }
@@ -55,6 +56,7 @@ check_dependecies() {
 
 parse_params() {
 	# default values of variables set from params
+	transition_folder=''
 	backup_name="backup_$(date +%d_%m_%Y).tar.xz"
 	folder_destination="./"
 	prune_days=0
@@ -93,6 +95,10 @@ parse_params() {
 		-f | --force_upload)
 			force_upload=1
 			;;
+		-t | --transition_folder)
+			transition_folder="${2-}"
+			shift
+			;;
 		-?*) die "Unknown option: $1" ;;
 		*)
 			[[ -z $1 ]] && break
@@ -114,17 +120,22 @@ calc_duration() {
 
 parse_params "$@"
 {
-	unencrypted_backup="$folder_destination/$backup_name"
-	#encrypted_backup="$unencrypted_backup.asc"
-	start_generation=$(date +%s.%N)
 	check_dependecies
-	#FIXME: When backup size gets to 4GB this will throw an error
-	if ! XZ_OPT=-9 tar --exclude-vcs --exclude="node_modules" -Jcvf "$unencrypted_backup" "${arrVar[@]}"; then
+
+	if [[ -z "$transition_folder" ]]; then
+		transition_backup="$folder_destination/$backup_name"
+	else
+		transition_backup="$transition_folder/$backup_name"
+	fi
+	encrypted_transition_backup="$transition_backup.asc"
+
+	start_generation=$(date +%s.%N)
+	if ! XZ_OPT=-9 tar --exclude-vcs --exclude="node_modules" -Jcvf "$transition_backup" "${arrVar[@]}"; then
 		tar_failed=1
 	fi
 	# TODO: Define options for gpg options
-	#gpg --pinentry-mode=loopback --encrypt --sign --armor --batch -r jegj57@gmail.com --passphrase-file /home/jegj/.gnupg/passphrase -o "$encrypted_backup" "$folder_destination/$backup_name"
-	#rm "$folder_destination/$backup_name"
+	gpg --pinentry-mode=loopback --encrypt --sign --armor --batch -r jegj57@gmail.com --passphrase-file /home/jegj/.gnupg/passphrase -o "$encrypted_transition_backup" "$transition_backup"
+
 	execution_time_seconds=$(calc_duration "$start_generation")
 
 	if [[ $tar_failed -eq 0 ]]; then
@@ -139,6 +150,7 @@ parse_params "$@"
 		find "$folder_destination" -mtime "+$prune_days" -type f -delete
 	fi
 
+	# S3 upload
 	if
 		[[ -z "$s3_bucket" ]]
 	then
@@ -148,12 +160,21 @@ parse_params "$@"
 		echo "Preparing to upload to S3 bucket $s3_bucket"
 		if [[ $(date +%u) -eq $upload_day || $force_upload -eq 1 ]]; then
 			aws s3 rm "$s3_bucket" --recursive
-			aws s3 cp "$unencrypted_backup" "$s3_bucket/$backup_name"
-			#aws s3 cp "$encrypted_backup" "$s3_bucket/$backup_name.asc"
+			aws s3 cp "$encrypted_transition_backup" "$s3_bucket/$backup_name"
 			upload_time_seconds=$(calc_duration "$start_upload")
 			echo "Backup upload completed. Execution time: $upload_time_seconds"
 		else
 			echo "Skipping remote backup. Does not match the day"
 		fi
 	fi
+
+	# If there is transition folder
+	if [[ -n "$transition_folder" ]]; then
+		echo "Moving to final destination...."
+		mv "$encrypted_transition_backup" "$folder_destination"
+	else
+		echo "Deleting uncrypted file..."
+		rm "$transition_backup"
+	fi
+
 } >"/tmp/$backup_name.out" 2>"/tmp/$backup_name.err"
