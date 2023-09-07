@@ -14,4 +14,4 @@ DONE: Secure S3 bucket ... best practices
 TODO: Add flag for s3 free tier
 TODO: Add options for customize the gpg encryption
 TODO: Check problem with gpg and vfat devices ( file too large) - evalue use split for vfat filesystems
-TODO: Check problem with gpg prompting the passphrase
+DONE: Check problem with gpg prompting the passphrase
