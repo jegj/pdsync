@@ -6,6 +6,7 @@ personal data sync script
 ```sh 
 pdsync.sh -d /backup /home/user/folder1 /home/user/folder2
 pdsync.sh -d "/media/backups" -s s3://my-backups /home/user1/Videos /home/user1/Documents /home/user1/Pictures /home/user1/projects
+pdsync.sh -d "/media/backups" -s s3://my-backups -f -t /home/user1/transition_folder /home/user1/Videos /home/user1/Documents /home/user1/Pictures /home/user1/projects
 ```
 On crons define the XDG_RUNTIME_DIR so the cron can send the notification
 
