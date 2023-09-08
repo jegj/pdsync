@@ -168,7 +168,7 @@ parse_params "$@"
 		fi
 	fi
 
-	# If there is transition folder
+	# If there is a transition folder
 	if [[ -n "$transition_folder" ]]; then
 		echo "Moving to final destination...."
 		mv "$encrypted_transition_backup" "$folder_destination"
