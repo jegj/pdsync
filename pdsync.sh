@@ -130,11 +130,10 @@ parse_params "$@"
 	encrypted_transition_backup="$transition_backup.asc"
 
 	start_generation=$(date +%s.%N)
-	if ! XZ_OPT=-9 tar --exclude-vcs --exclude="node_modules" -Jcvf "$transition_backup" "${arrVar[@]}"; then
+	# TODO: Define options for gpg options
+	if ! XZ_OPT=-9 tar --exclude-vcs --exclude="node_modules" -Jcvf - "${arrVar[@]}" | gpg --pinentry-mode=loopback --encrypt --sign --armor --batch -r jegj57@gmail.com --passphrase-file /home/jegj/.gnupg/passphrase -o "$encrypted_transition_backup"; then
 		tar_failed=1
 	fi
-	# TODO: Define options for gpg options
-	gpg --pinentry-mode=loopback --encrypt --sign --armor --batch -r jegj57@gmail.com --passphrase-file /home/jegj/.gnupg/passphrase -o "$encrypted_transition_backup" "$transition_backup"
 
 	execution_time_seconds=$(calc_duration "$start_generation")
 
