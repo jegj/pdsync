@@ -18,7 +18,7 @@ usage() {
 	cat <<EOF
 Usage: $(
 		basename "${BASH_SOURCE[0]}"
-	) [-h|--help] [-v|--verboese] [-b|--backup_name <backup_name>] [-d|--destination <destination>] [-p|--prune <prune_days>] arg1 [arg2...]
+	) [-h|--help] [-v|--version] [-b|--backup_name <backup_name>] [-t|--transition_folder <folder>] [-d|--destination <destination>] [-p|--prune <prune_days>] [-s|--s3_bucket <s3 bucket>] [-u|--upload_day <upload day>] [-f|--force_upload] arg1 [arg2...]
 
 Script to backup my data and upload it to remote locations
 
@@ -27,7 +27,7 @@ Available options:
 -h, --help                Print this help and exit
 -v, --vesion              Print script version
 -b, --backup_name         Backup's name. By default create a generic name with the timestamp
--t, ---transition_folder  Transition folder to file/folder operations. Useful when the destination has a file system with file size limitation e.g.vfat
+-t, ---transition_folder  Transition folder for file/folder operations. Useful when the destination has a file system with file size limitation e.g.vfat
 -d, --destination         Final destination for the backup. By default is the current directory
 -p, --prune               Prune backups based on days created
 -s, --s3_bucket           S3 bucket for offsite backup
