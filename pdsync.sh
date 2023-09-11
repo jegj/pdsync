@@ -11,7 +11,7 @@ set -o pipefail
 # ./pdsync.sh -d /tmp /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                   #
 #######################################################################################################################
 
-version="1.3.0"
+version="1.3.1"
 day_in_ms=86400000
 tar_failed=0
 usage() {
@@ -159,7 +159,7 @@ parse_params "$@"
 		echo "Preparing to upload to S3 bucket $s3_bucket"
 		if [[ $(date +%u) -eq $upload_day || $force_upload -eq 1 ]]; then
 			aws s3 rm "$s3_bucket" --recursive
-			aws s3 cp "$encrypted_transition_backup" "$s3_bucket/$backup_name"
+			aws s3 cp "$encrypted_transition_backup" "$s3_bucket"
 			upload_time_seconds=$(calc_duration "$start_upload")
 			echo "Backup upload completed. Execution time: $upload_time_seconds"
 		else
