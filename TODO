@@ -15,3 +15,4 @@ TODO: Add flag for s3 free tier
 DONE: Add options for customize the gpg encryption
 DONE: Check problem with gpg and vfat devices ( file too large) - evalue use split for vfat filesystems
 DONE: Check problem with gpg prompting the passphrase
+TODO: Evaluate logging output
