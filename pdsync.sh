@@ -11,16 +11,17 @@ set -o pipefail
 # ./pdsync.sh -d /tmp /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                   #
 #######################################################################################################################
 
-version="1.3.1"
+version="1.4.0"
 day_in_ms=86400000
 tar_failed=0
 usage() {
 	cat <<EOF
+Version: ${version}
 Usage: $(
 		basename "${BASH_SOURCE[0]}"
-	) [-h|--help] [-v|--version] [-b|--backup_name <backup_name>] [-t|--transition_folder <folder>] [-d|--destination <destination>] [-p|--prune <prune_days>] [-s|--s3_bucket <s3 bucket>] [-u|--upload_day <upload day>] [-f|--force_upload] arg1 [arg2...]
+	) [-h|--help] [-v|--version] [-b|--backup_name <backup_name>] [-t|--transition_folder <folder>] [-d|--destination <destination>] [-p|--prune <prune_days>] [-s|--s3_bucket <s3 bucket>] [-u|--upload_day <upload day>] [-f|--force_upload] [-e|--gpg_email <email>] [-r|--gpg_passphrase_file <passphrase-file> ] arg1 [arg2...]
 
-Script to backup my data and upload it to remote locations
+Script to backup and encrypt your data in a specific destination with S3 support 
 
 Available options:
 
@@ -33,6 +34,8 @@ Available options:
 -s, --s3_bucket           S3 bucket for offsite backup
 -u, --upload_day          Only upload to S3 on specific days base on number( 1-monday, 2-tuesday ...)
 -f, --force_upload        Force to upload to S3
+-e, --gpg_email           Email for gpg encryption. REQUIRED
+-r, --gpg_passphrase_file Passphrase file for gpgp encryption. REQUIRED 
 EOF
 	exit
 }
@@ -52,6 +55,10 @@ check_dependecies() {
 	if ! aws --version &>/dev/null; then
 		die "aws cli is required" 1
 	fi
+
+	if ! gpg --version &>/dev/null; then
+		die "gpg is required" 1
+	fi
 }
 
 parse_params() {
@@ -64,6 +71,8 @@ parse_params() {
 	upload_day=0
 	force_upload=0
 	arrVar=()
+	gpg_email=''
+	gpg_passphrase_file=''
 
 	while :; do
 		case "${1-}" in
@@ -99,6 +108,14 @@ parse_params() {
 			transition_folder="${2-}"
 			shift
 			;;
+		-e | --gpg_email)
+			gpg_email="${2-}"
+			shift
+			;;
+		-r | --gpg_passphrase_file)
+			gpg_passphrase_file="${2-}"
+			shift
+			;;
 		-?*) die "Unknown option: $1" ;;
 		*)
 			[[ -z $1 ]] && break
@@ -118,9 +135,26 @@ calc_duration() {
 	echo "$execution_time_seconds"
 }
 
+check_input() {
+	if
+		[[ -z "$gpg_email" ]]
+	then
+		die "gpg_email is required for encryption" 1
+	fi
+
+	if
+		[[ -z "$gpg_passphrase_file" ]]
+	then
+		die "gpg_passphrase_file"" is required for encryption" 1
+	fi
+
+}
+
 parse_params "$@"
 {
 	check_dependecies
+
+	check_input
 
 	if [[ -z "$transition_folder" ]]; then
 		transition_backup="$folder_destination/$backup_name"
@@ -130,8 +164,7 @@ parse_params "$@"
 	encrypted_transition_backup="$transition_backup.asc"
 
 	start_generation=$(date +%s.%N)
-	# TODO: Define options for gpg options
-	if ! XZ_OPT=-9 tar --exclude-vcs --exclude="node_modules" -Jcvf - "${arrVar[@]}" | gpg --pinentry-mode=loopback --encrypt --sign --armor --batch -r jegj57@gmail.com --passphrase-file /home/jegj/.gnupg/passphrase -o "$encrypted_transition_backup"; then
+	if ! XZ_OPT=-9 tar --exclude-vcs --exclude="node_modules" -Jcvf - "${arrVar[@]}" | gpg --pinentry-mode=loopback --encrypt --sign --armor --batch -r "$gpg_email" --passphrase-file "$gpg_passphrase_file" -o "$encrypted_transition_backup"; then
 		tar_failed=1
 	fi
 
