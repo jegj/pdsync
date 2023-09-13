@@ -2,9 +2,9 @@
 set -o pipefail
 #######################################################################################################################
 #                                            pdsync                                                                   #
-# Script to backup my data and upload it to remote locations                                                          #
+# Script to backup and encrypt your data in a specific destination with S3 support                                    #
 #                                                                                                                     #
-# Author: jegj@gmail.com                                                                                              #
+# Author: jegj57@gmail.com                                                                                            #
 #                                                                                                                     #
 # Usage:                                                                                                              #
 # ./pdsync.sh /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                           #
@@ -17,6 +17,7 @@ tar_failed=0
 usage() {
 	cat <<EOF
 Version: ${version}
+Author: jegj57@gmail.com
 Usage: $(
 		basename "${BASH_SOURCE[0]}"
 	) [-h|--help] [-v|--version] [-b|--backup_name <backup_name>] [-t|--transition_folder <folder>] [-d|--destination <destination>] [-p|--prune <prune_days>] [-s|--s3_bucket <s3 bucket>] [-u|--upload_day <upload day>] [-f|--force_upload] [-e|--gpg_email <email>] [-r|--gpg_passphrase_file <passphrase-file> ] arg1 [arg2...]
@@ -130,9 +131,15 @@ parse_params() {
 
 calc_duration() {
 	start=$1
-	duration=$(echo "$(date +%s.%N) - $start" | bc)
-	execution_time_seconds=$(printf "%.2f seconds" "$duration")
-	echo "$execution_time_seconds"
+	duration_sec=$(echo "$(date +%s) - $start" | bc)
+	if [[ "$duration_sec" -gt 60 ]]; then
+		duration_min=$(echo "$duration_sec / 60" | bc -l)
+		execution_time_min=$(printf "%.2f min" "$duration_min")
+		echo "$execution_time_min"
+	else
+		execution_time_sec=$(printf "%.2f sec" "$duration_sec")
+		echo "$execution_time_sec"
+	fi
 }
 
 check_input() {
@@ -163,7 +170,7 @@ parse_params "$@"
 	fi
 	encrypted_transition_backup="$transition_backup.asc"
 
-	start_generation=$(date +%s.%N)
+	start_generation=$(date +%s)
 	if ! XZ_OPT=-9 tar --exclude-vcs --exclude="node_modules" -Jcvf - "${arrVar[@]}" | gpg --pinentry-mode=loopback --encrypt --sign --armor --batch -r "$gpg_email" --passphrase-file "$gpg_passphrase_file" -o "$encrypted_transition_backup"; then
 		tar_failed=1
 	fi

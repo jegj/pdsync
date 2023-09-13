@@ -16,3 +16,4 @@ DONE: Add options for customize the gpg encryption
 DONE: Check problem with gpg and vfat devices ( file too large) - evalue use split for vfat filesystems
 DONE: Check problem with gpg prompting the passphrase
 TODO: Evaluate logging output
+DONE: Improve the time elpased calculation
