@@ -11,7 +11,7 @@ DONE: Add option to force s3 upload
 DONE: Add encryption to the backups
 DONE: Add option to force s3 content first
 DONE: Secure S3 bucket ... best practices
-TODO: Add flag for s3 free tier
+DONE: Add flag for s3 free tier
 DONE: Add options for customize the gpg encryption
 DONE: Check problem with gpg and vfat devices ( file too large) - evalue use split for vfat filesystems
 DONE: Check problem with gpg prompting the passphrase

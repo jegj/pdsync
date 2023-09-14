@@ -20,7 +20,7 @@ Version: ${version}
 Author: jegj57@gmail.com
 Usage: $(
 		basename "${BASH_SOURCE[0]}"
-	) [-h|--help] [-v|--version] [-b|--backup_name <backup_name>] [-t|--transition_folder <folder>] [-d|--destination <destination>] [-p|--prune <prune_days>] [-s|--s3_bucket <s3 bucket>] [-u|--upload_day <upload day>] [-f|--force_upload] [-e|--gpg_email <email>] [-r|--gpg_passphrase_file <passphrase-file> ] arg1 [arg2...]
+	) [-h|--help] [-v|--version] [-b|--backup_name <backup_name>] [-t|--transition_folder <folder>] [-d|--destination <destination>] [-p|--prune <prune_days>] [-s|--s3_bucket <s3 bucket>] [-u|--upload_day <upload day>] [-f|--force_upload] [-e|--gpg_email <email>] [-r|--gpg_passphrase_file <passphrase-file> ] [-c|--clear_s3_bucket] arg1 [arg2...]
 
 Script to backup and encrypt your data in a specific destination with S3 support 
 
@@ -37,6 +37,7 @@ Available options:
 -f, --force_upload        Force to upload to S3
 -e, --gpg_email           Email for gpg encryption. REQUIRED
 -r, --gpg_passphrase_file Passphrase file for gpgp encryption. REQUIRED 
+-c, --clear_s3_bucket     Delete the content of the S3 bucket first before upload the backups 
 EOF
 	exit
 }
@@ -74,6 +75,7 @@ parse_params() {
 	arrVar=()
 	gpg_email=''
 	gpg_passphrase_file=''
+	clear_s3_bucket=0
 
 	while :; do
 		case "${1-}" in
@@ -116,6 +118,9 @@ parse_params() {
 		-r | --gpg_passphrase_file)
 			gpg_passphrase_file="${2-}"
 			shift
+			;;
+		-c | --clear_s3_bucket)
+			clear_s3_bucket=1
 			;;
 		-?*) die "Unknown option: $1" ;;
 		*)
@@ -198,10 +203,12 @@ parse_params "$@"
 		start_upload=$(date +%s.%N)
 		echo "Preparing to upload to S3 bucket $s3_bucket"
 		if [[ $(date +%u) -eq $upload_day || $force_upload -eq 1 ]]; then
-			aws s3 rm "$s3_bucket" --recursive
+			if [[ $clear_s3_bucket -eq 1 ]]; then
+				aws s3 rm "$s3_bucket" --recursive
+			fi
 			aws s3 cp "$encrypted_transition_backup" "$s3_bucket"
-			upload_time_seconds=$(calc_duration "$start_upload")
-			echo "Backup upload completed. Execution time: $upload_time_seconds"
+			upload_time=$(calc_duration "$start_upload")
+			echo "Backup upload completed. Execution time: $upload_time"
 		else
 			echo "Skipping remote backup. Does not match the day"
 		fi
