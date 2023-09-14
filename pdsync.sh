@@ -205,6 +205,8 @@ parse_params "$@"
 		if [[ $(date +%u) -eq $upload_day || $force_upload -eq 1 ]]; then
 			if [[ $clear_s3_bucket -eq 1 ]]; then
 				aws s3 rm "$s3_bucket" --recursive
+			else
+				echo "Skipping s3 clean up..."
 			fi
 			aws s3 cp "$encrypted_transition_backup" "$s3_bucket"
 			upload_time=$(calc_duration "$start_upload")
