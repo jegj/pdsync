@@ -36,6 +36,3 @@ Some documentation about `gpg`
 ```sh
 cp pdsync.sh $HOME/.local/bin/pdsync
 ```
-<!--
-split -n 4 -d -e  backup_23_08_2023.tar.xz backup_23_08_2023.tar.xz.split
--->
