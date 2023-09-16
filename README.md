@@ -34,5 +34,5 @@ Some documentation about `gpg`
 ## Installation
 
 ```sh
-cp pdsync.sh $HOME/.local/bin/pdsync
+curl -o- https://raw.githubusercontent.com/jegj/pdsync/v1.4.0/install.sh | bash
 ```
