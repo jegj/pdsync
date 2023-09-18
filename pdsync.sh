@@ -219,7 +219,7 @@ parse_params "$@"
 	# If there is a transition folder
 	if [[ -n "$transition_folder" ]]; then
 		echo "Moving to final destination...."
-		# FIXME: File to large cause an error on ft file system
+		# FIXME: File to large cause an error on vfat file system
 		mv "$encrypted_transition_backup" "$folder_destination"
 	fi
 
