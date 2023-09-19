@@ -200,7 +200,7 @@ parse_params "$@"
 	then
 		echo "No s3 bucket. Skipping remote backup..."
 	else
-		start_upload=$(date +%s.%N)
+		start_upload=$(date +%s)
 		echo "Preparing to upload to S3 bucket $s3_bucket"
 		if [[ $(date +%u) -eq $upload_day || $force_upload -eq 1 ]]; then
 			if [[ $clear_s3_bucket -eq 1 ]]; then
