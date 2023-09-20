@@ -216,11 +216,21 @@ parse_params "$@"
 		fi
 	fi
 
-	# If there is a transition folder
+	# If there is a transition folder and the file too large( to support my old vfat external drive =/ )
 	if [[ -n "$transition_folder" ]]; then
 		echo "Moving to final destination...."
-		# FIXME: File to large cause an error on vfat file system
-		mv "$encrypted_transition_backup" "$folder_destination"
+		file_size=$(du "$encrypted_transition_backup" | cut -f 1)
+		if [[ $file_size -gt 4000000 ]]; then
+			echo "File $encrypted_transition_backup too large...splitting file"
+			split -n 4 -d -e "$encrypted_transition_backup" "$encrypted_transition_backup.split"
+			for i in 0 1 2 3; do
+				echo "Moving chunk $i, $encrypted_transition_backup.split0$i"
+				mv "$encrypted_transition_backup.split0$i" "$folder_destination"
+				rm "$encrypted_transition_backup"
+			done
+		else
+			mv "$encrypted_transition_backup" "$folder_destination"
+		fi
 	fi
 
 } >"/tmp/$backup_name.out" 2>"/tmp/$backup_name.err"
