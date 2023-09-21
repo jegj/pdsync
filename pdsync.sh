@@ -226,8 +226,9 @@ parse_params "$@"
 			for i in 0 1 2 3; do
 				echo "Moving chunk $i, $encrypted_transition_backup.split0$i"
 				mv "$encrypted_transition_backup.split0$i" "$folder_destination"
-				rm "$encrypted_transition_backup"
 			done
+			echo "Deleting transition file...$encrypted_transition_backup"
+			rm "$encrypted_transition_backup"
 		else
 			mv "$encrypted_transition_backup" "$folder_destination"
 		fi
