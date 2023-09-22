@@ -11,7 +11,7 @@ set -o pipefail
 # ./pdsync.sh -d /tmp /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                   #
 #######################################################################################################################
 
-version="1.4.0"
+version="1.5.0"
 day_in_ms=86400000
 tar_failed=0
 usage() {
