@@ -17,5 +17,5 @@ DONE: Check problem with gpg and vfat devices ( file too large) - evalue use spl
 DONE: Check problem with gpg prompting the passphrase
 TODO: Evaluate logging output
 DONE: Improve the time elpased calculation
-TODO: Big file problem with vfat
-TODO: Aritmetic bug with time
+DONE: Big file problem with vfat
+DONE: Aritmetic bug with time
