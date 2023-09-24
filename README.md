@@ -1,5 +1,5 @@
 # pdsync
-personal data sync script
+personal data sync script. Script that backups folder on an external hard drive and also upload them to S3. By default all the logs go to the `/tmp`folder.
 
 ## usage
 
@@ -13,12 +13,8 @@ On crons define the XDG_RUNTIME_DIR so the cron can send the notification
 ```sh
 * * * * * XDG_RUNTIME_DIR=/run/user/$(id -u) pdsync.sh -d "/remote/backup" -p 5  -s s3://my-backups /home
 ```
-
-## remote backups
-Only supports s3 and for now only upload the backup to s3 on Sundays to use AWS S3 free layer 
-
 ## gpg encryption
-
+`pdsync` use gpg encryption, so this is a basic way to encryp/decrypt files
 ```sh
 #encryption
 gpg --encrypt --sign --armor -r <email> --passphrase-file <passphrase_file> -o <destination> file_name
