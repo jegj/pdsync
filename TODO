@@ -19,3 +19,4 @@ DONE: Evaluate logging output
 DONE: Improve the time elpased calculation
 DONE: Big file problem with vfat
 DONE: Aritmetic bug with time
+TODO: retry upload mechanism
