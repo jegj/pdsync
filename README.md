@@ -30,7 +30,7 @@ Some documentation about `gpg`
 ## Installation
 
 ```sh
-curl -o- https://raw.githubusercontent.com/jegj/pdsync/v1.5.0/install.sh | bash
+curl -o- https://raw.githubusercontent.com/jegj/pdsync/v1.5.1/install.sh | bash
 ```
 
 Install the script at `$HOME/.local/bin/pdsync`
