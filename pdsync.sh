@@ -11,7 +11,7 @@ set -o pipefail
 # ./pdsync.sh -d /tmp /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                   #
 #######################################################################################################################
 
-version="1.5.0"
+version="1.5.1"
 day_in_ms=86400000
 tar_failed=0
 usage() {
@@ -22,13 +22,17 @@ Usage: $(
 		basename "${BASH_SOURCE[0]}"
 	) [-h|--help] [-v|--version] [-b|--backup_name <backup_name>] [-t|--transition_folder <folder>] [-d|--destination <destination>] [-p|--prune <prune_days>] [-s|--s3_bucket <s3 bucket>] [-u|--upload_day <upload day>] [-f|--force_upload] [-e|--gpg_email <email>] [-r|--gpg_passphrase_file <passphrase-file> ] [-c|--clear_s3_bucket] arg1 [arg2...]
 
-Script to backup and encrypt your data in a specific destination with S3 support 
+Script to backup and encrypt your data in a specific destination with S3 support. 
+
+Dependecies:
+ - gpg
+ - aws
 
 Available options:
 
 -h, --help                Print this help and exit
 -v, --vesion              Print script version
--b, --backup_name         Backup's name. By default create a generic name with the timestamp
+-b, --backup_name         Backup's name with .tar.xz extension( e.g backup.tar.xz). By default create a generic name with the timestamp
 -t, ---transition_folder  Transition folder for file/folder operations. Useful when the destination has a file system with file size limitation e.g.vfat
 -d, --destination         Final destination for the backup. By default is the current directory
 -p, --prune               Prune backups based on days created
@@ -208,9 +212,12 @@ parse_params "$@"
 			else
 				echo "Skipping s3 clean up..."
 			fi
-			aws s3 cp "$encrypted_transition_backup" "$s3_bucket"
-			upload_time=$(calc_duration "$start_upload")
-			echo "Backup upload completed. Execution time: $upload_time"
+			if ! aws s3 cp "$encrypted_transition_backup" "$s3_bucket"; then
+				notify-send -u critical -a pdsync -c backups -t $day_in_ms "pdsync backup upload failed"
+			else
+				upload_time=$(calc_duration "$start_upload")
+				echo "Backup upload completed. Execution time: $upload_time"
+			fi
 		else
 			echo "Skipping remote backup. Does not match the day"
 		fi
