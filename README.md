@@ -18,7 +18,7 @@ On crons define the XDG_RUNTIME_DIR so the cron can send the notification
 ```sh
 #encryption
 gpg --encrypt --sign --armor -r <email> --passphrase-file <passphrase_file> -o <destination> file_name
-#descryption
+#descrypt
 gpg file_name.asc
 ```
 
@@ -26,6 +26,7 @@ Some documentation about `gpg`
 
 - https://www.digitalocean.com/community/tutorials/how-to-use-gpg-to-encrypt-and-sign-messages
 - https://risanb.com/code/backup-restore-gpg-key/
+- https://www.howtogeek.com/816878/how-to-back-up-and-restore-gpg-keys-on-linux/
 
 ## Installation
 
