@@ -11,7 +11,7 @@ set -o pipefail
 # ./pdsync.sh -d /tmp /home/jegj/Videos /home/jegj/Pictures/  /home/jegj/Documents/                                   #
 #######################################################################################################################
 
-version="1.5.1"
+version="1.6.0"
 day_in_ms=86400000
 tar_failed=0
 usage() {
@@ -185,9 +185,10 @@ parse_params "$@"
 	fi
 
 	execution_time_seconds=$(calc_duration "$start_generation")
+	human_file_size=$(du "$encrypted_transition_backup" -h | cut -f 1)
 
 	if [[ $tar_failed -eq 0 ]]; then
-		notify-send -u normal -a pdsync -c backups -t $day_in_ms "pdsync backup completed. Execution time: $execution_time_seconds"
+		notify-send -u normal -a pdsync -c backups -t $day_in_ms "pdsync backup completed. Execution time: $execution_time_seconds. File size : $human_file_size"
 	else
 		notify-send -u critical -a pdsync -c backups -t $day_in_ms "pdsync backup failed"
 	fi

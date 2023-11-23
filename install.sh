@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 { # this ensures the entire script is downloaded #
-	pdsync_version=${PDSYNC_VERSION:-"v1.5.1"}
+	pdsync_version=${PDSYNC_VERSION:-"v1.6.0"}
 	msg() {
 		command printf %s\\n "$*" 2>/dev/null
 	}
