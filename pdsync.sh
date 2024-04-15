@@ -230,8 +230,8 @@ parse_params "$@"
 		file_size=$(du "$encrypted_transition_backup" | cut -f 1)
 		if [[ $file_size -gt 4000000 ]]; then
 			echo "File $encrypted_transition_backup too large...splitting file"
-			split -n 4 -d -e "$encrypted_transition_backup" "$encrypted_transition_backup.split"
-			for i in 0 1 2 3; do
+			split -n 6 -d -e "$encrypted_transition_backup" "$encrypted_transition_backup.split"
+			for i in 0 1 2 3 4 5; do
 				echo "Moving chunk $i, $encrypted_transition_backup.split0$i"
 				mv "$encrypted_transition_backup.split0$i" "$folder_destination"
 			done
