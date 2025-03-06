@@ -38,6 +38,7 @@ Some documentation about `gpg`
 - [how-to-use-gpg-to-encrypt-and-sign-messages](https://www.digitalocean.com/community/tutorials/how-to-use-gpg-to-encrypt-and-sign-messages)
 - [backup-restore-gpg-key/](https://risanb.com/code/backup-restore-gpg-key/)
 - [how-to-back-up-and-restore-gpg-keys-on-linux](https://www.howtogeek.com/816878/how-to-back-up-and-restore-gpg-keys-on-linux/)
+- [Change expiratation time](https://superuser.com/questions/813421/can-you-extend-the-expiration-date-of-an-already-expired-gpg-key)
 
 ## Installation
 
