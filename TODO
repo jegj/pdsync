@@ -21,3 +21,4 @@ DONE: Big file problem with vfat
 DONE: Aritmetic bug with time
 DONE: check when upload failed
 TODO: Calculate chunks based on file size
+TODO: Move to systemd unit and timer
