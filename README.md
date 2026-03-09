@@ -40,6 +40,32 @@ Some documentation about `gpg`
 - [how-to-back-up-and-restore-gpg-keys-on-linux](https://www.howtogeek.com/816878/how-to-back-up-and-restore-gpg-keys-on-linux/)
 - [Change expiratation time](https://superuser.com/questions/813421/can-you-extend-the-expiration-date-of-an-already-expired-gpg-key)
 
+## gpg Export and Import
+
+#### Export public key
+
+gpg --export --armor "<jegj57@gmail.com>" > gpg_public.asc
+
+#### Export secret key
+
+gpg --export-secret-keys --armor "<jegj57@gmail.com>" > gpg_secret.asc
+
+#### Export trust database
+
+gpg --export-ownertrust > gpg_trust.txt
+
+#### Import public key
+
+gpg --import gpg_public.asc
+
+#### Import secret key (will ask for your key passphrase)
+
+gpg --import gpg_secret.asc
+
+#### Import trust
+
+gpg --import-ownertrust gpg_trust.txt
+
 ## Installation
 
 ```sh
